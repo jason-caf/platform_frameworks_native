@@ -514,7 +514,7 @@ private:
     void initializeDisplays();
 
     // Create an IBinder for a builtin display and add it to current state
-    void createBuiltinDisplayLocked(DisplayDevice::DisplayType type);
+    void createBuiltinDisplayLocked(DisplayDevice::DisplayType type, int32_t hwcId);
 
 
     sp<const DisplayDevice> getDisplayDevice(const wp<IBinder>& dpy) const {
@@ -545,7 +545,7 @@ private:
 
     int32_t getDisplayType(const sp<IBinder>& display) {
         if (!display.get()) return NAME_NOT_FOUND;
-        for (int i = 0; i < DisplayDevice::NUM_BUILTIN_DISPLAY_TYPES; ++i) {
+        for (int i = 0; i < (int)mBuiltinDisplays.size(); ++i) {
             if (display == mBuiltinDisplays[i]) {
                 return i;
             }
@@ -625,7 +625,8 @@ private:
     void listLayersLocked(const Vector<String16>& args, size_t& index, String8& result) const;
     void dumpStatsLocked(const Vector<String16>& args, size_t& index, String8& result) const;
     void clearStatsLocked(const Vector<String16>& args, size_t& index, String8& result);
-    void dumpAllLocked(const Vector<String16>& args, size_t& index, String8& result) const;
+    void dumpAllLocked(const Vector<String16>& args, size_t& index, String8& result,
+                                                     bool enableRegionDump) const;
     bool startDdmConnection();
     void appendSfConfigString(String8& result) const;
     void checkScreenshot(size_t w, size_t s, size_t h, void const* vaddr,
@@ -714,7 +715,7 @@ private:
     sp<EventControlThread> mEventControlThread;
     EGLContext mEGLContext;
     EGLDisplay mEGLDisplay;
-    sp<IBinder> mBuiltinDisplays[DisplayDevice::NUM_BUILTIN_DISPLAY_TYPES];
+    std::vector<sp<IBinder>> mBuiltinDisplays;
 
     // Can only accessed from the main thread, these members
     // don't need synchronization
